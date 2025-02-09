@@ -28,10 +28,16 @@ jobs:
           echo "Building project..."
           yarn build
 
-      - name: Install SSH client
+      - name: Install SSH client and diagnostic tools
         run: |
-          echo "Installing SSH client..."
-          sudo apt-get install -y openssh-client
+          echo "Installing SSH client and diagnostic tools..."
+          sudo apt-get install -y openssh-client iputils-ping telnet
+
+      - name: Test SSH Server Connectivity
+        run: |
+          echo "Testing SSH server connectivity..."
+          ping -c 4 $SSH_HOST || { echo "Ping failed" >&2; exit 1; }
+          telnet $SSH_HOST 22 || { echo "Telnet to port 22 failed" >&2; exit 1; }
 
       - name: Deploy to SSH Server
         env:
@@ -46,17 +52,18 @@ jobs:
           mkdir -p ~/.ssh || { echo "Failed to create .ssh directory" >&2; exit 1; }
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa || { echo "Failed to write SSH private key" >&2; exit 1; }
           chmod 600 ~/.ssh/id_rsa || { echo "Failed to change permissions on SSH private key" >&2; exit 1; }
+          echo "SSH key setup completed."
 
           # Log the destination folder path
           echo "Destination Folder: $DEST_FOLDER"
 
           # Check if we can connect to the server
           echo "Testing SSH connection..."
-          ssh -v $SSH_USER@$SSH_HOST "echo 'SSH connection successful.'" || { echo "SSH connection failed." >&2; exit 1; }
+          ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "echo 'SSH connection successful.'" || { echo "SSH connection failed." >&2; exit 1; }
 
           # Create the destination folder
           echo "Creating destination folder..."
-          ssh -v $SSH_USER@$SSH_HOST "mkdir -p $DEST_FOLDER" || { echo "Failed to create destination folder." >&2; exit 1; }
+          ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "mkdir -p $DEST_FOLDER" || { echo "Failed to create destination folder." >&2; exit 1; }
 
           # Perform the rsync operation
           echo "Starting rsync..."
