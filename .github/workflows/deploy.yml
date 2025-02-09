@@ -3,7 +3,7 @@ name: Deploy to SSH Server
 on:
   push:
     branches:
-      - "**" # This means the workflow will trigger on push to any branch
+      - "**"
 
 jobs:
   deploy:
@@ -40,5 +40,14 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan $SSH_HOST >> ~/.ssh/known_hosts
 
-          ssh $SSH_USER@$SSH_HOST "mkdir -p $DEST_FOLDER"
+          # Log the destination folder path
+          echo "Destination Folder: $DEST_FOLDER"
+
+          # Check if we can connect to the server
+          ssh -v $SSH_USER@$SSH_HOST "echo 'SSH connection successful.'"
+
+          # Create the destination folder
+          ssh -v $SSH_USER@$SSH_HOST "mkdir -p $DEST_FOLDER"
+
+          # Perform the rsync operation
           rsync -avz --delete ./dist/ $SSH_USER@$SSH_HOST:$DEST_FOLDER/
