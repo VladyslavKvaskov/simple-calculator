@@ -47,11 +47,6 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa || { echo "Failed to write SSH private key" >&2; exit 1; }
           chmod 600 ~/.ssh/id_rsa || { echo "Failed to change permissions on SSH private key" >&2; exit 1; }
 
-          # Capture the output of the ssh-keyscan command
-          echo "Running ssh-keyscan..."
-          ssh-keyscan $SSH_HOST >> ~/.ssh/known_hosts 2>&1 || { echo "Failed to scan SSH host: $(ssh-keyscan $SSH_HOST 2>&1)" >&2; exit 1; }
-          echo "SSH key setup completed."
-
           # Log the destination folder path
           echo "Destination Folder: $DEST_FOLDER"
 
