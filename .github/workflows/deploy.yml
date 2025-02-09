@@ -36,33 +36,26 @@ jobs:
           DEST_FOLDER: "/www/simple-calculator.vkvaskov.com/${{ github.ref_name }}"
         run: |
           set -e
+          echo "Setting up SSH key..."
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan $SSH_HOST >> ~/.ssh/known_hosts
+          echo "SSH key setup completed."
 
           # Log the destination folder path
           echo "Destination Folder: $DEST_FOLDER"
 
           # Check if we can connect to the server
           echo "Testing SSH connection..."
-          if ! ssh -v $SSH_USER@$SSH_HOST "echo 'SSH connection successful.'"; then
-            echo "SSH connection failed."
-            exit 1
-          fi
+          ssh -v $SSH_USER@$SSH_HOST "echo 'SSH connection successful.'" || { echo "SSH connection failed." >&2; exit 1; }
 
           # Create the destination folder
           echo "Creating destination folder..."
-          if ! ssh -v $SSH_USER@$SSH_HOST "mkdir -p $DEST_FOLDER"; then
-            echo "Failed to create destination folder."
-            exit 1
-          fi
+          ssh -v $SSH_USER@$SSH_HOST "mkdir -p $DEST_FOLDER" || { echo "Failed to create destination folder." >&2; exit 1; }
 
           # Perform the rsync operation
           echo "Starting rsync..."
-          if ! rsync -avz --delete ./dist/ $SSH_USER@$SSH_HOST:$DEST_FOLDER/; then
-            echo "Rsync failed."
-            exit 1
-          fi
+          rsync -avz --delete ./dist/ $SSH_USER@$SSH_HOST:$DEST_FOLDER/ || { echo "Rsync failed." >&2; exit 1; }
 
           echo "Deployment completed successfully."
