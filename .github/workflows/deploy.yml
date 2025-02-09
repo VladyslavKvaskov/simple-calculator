@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted # Use the label of your self-hosted runner
+    runs-on: self-hosted
 
     steps:
       - name: Checkout repository
@@ -19,32 +19,23 @@ jobs:
           node-version: "18"
 
       - name: Install Yarn
-        run: |
-          echo "Installing Yarn..."
-          npm install -g yarn
+        run: npm install -g yarn
 
       - name: Install dependencies
-        run: |
-          echo "Installing dependencies..."
-          yarn install
+        run: yarn install
 
       - name: Build project
         env:
           BASE_URL: "/${{ github.ref_name }}"
-        run: |
-          echo "Building project..."
-          yarn build
+        run: yarn build
 
       - name: Deploy to Server
         env:
           DEST_FOLDER: ${{ github.ref_name }}
           BASE_DIR: "/var/www/ch05522979/www/simple-calculator.vkvaskov.com"
         run: |
-          echo "Deploying to server..."
-
           # Change directory to BASE_DIR
           cd $BASE_DIR || { echo "Failed to change directory to $BASE_DIR." >&2; exit 1; }
-          ls
 
           # Create the destination folder if it doesn't exist
           mkdir -p $DEST_FOLDER || { echo "Failed to create destination folder." >&2; exit 1; }
@@ -53,10 +44,6 @@ jobs:
           cp -r $GITHUB_WORKSPACE/dist/* $DEST_FOLDER/ || { echo "Failed to copy files." >&2; exit 1; }
 
           echo "Deployment completed successfully."
-
-          # List the contents of the destination folder
-          echo "Listing contents of the destination folder..."
-          ls -l $DEST_FOLDER
 
           # Display disk usage of the destination folder
           echo "Displaying disk usage of the destination folder..."
