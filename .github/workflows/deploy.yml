@@ -1,0 +1,44 @@
+name: Deploy to SSH Server
+
+on:
+  push:
+    branches:
+      - "**" # This means the workflow will trigger on push to any branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build project
+        run: yarn build
+
+      - name: Install SSH client
+        run: sudo apt-get install -y openssh-client
+
+      - name: Deploy to SSH Server
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          BRANCH_NAME: ${{ github.ref_name }}
+          DEST_FOLDER: "/www/simple-calculator.vkvaskov.com/${{ github.ref_name }}"
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan $SSH_HOST >> ~/.ssh/known_hosts
+
+          ssh $SSH_USER@$SSH_HOST "mkdir -p $DEST_FOLDER"
+          rsync -avz --delete ./dist/ $SSH_USER@$SSH_HOST:$DEST_FOLDER/
