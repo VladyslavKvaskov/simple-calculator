@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
 
     steps:
       - name: Checkout repository
@@ -33,14 +33,6 @@ jobs:
           echo "Installing SSH client and diagnostic tools..."
           sudo apt-get install -y openssh-client iputils-ping telnet
 
-      - name: Test SSH Server Connectivity
-        env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-        run: |
-          echo "Testing SSH server connectivity..."
-          ping -c 4 $SSH_HOST || { echo "Ping failed" >&2; exit 1; }
-          telnet $SSH_HOST 22 || { echo "Telnet to port 22 failed" >&2; exit 1; }
-
       - name: Deploy to SSH Server
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -61,11 +53,11 @@ jobs:
 
           # Check if we can connect to the server
           echo "Testing SSH connection..."
-          ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "echo 'SSH connection successful.'" || { echo "SSH connection failed." >&2; exit 1; }
+          ssh -v $SSH_USER@$SSH_HOST "echo 'SSH connection successful.'" || { echo "SSH connection failed." >&2; exit 1; }
 
           # Create the destination folder
           echo "Creating destination folder..."
-          ssh -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST "mkdir -p $DEST_FOLDER" || { echo "Failed to create destination folder." >&2; exit 1; }
+          ssh -v $SSH_USER@$SSH_HOST "mkdir -p $DEST_FOLDER" || { echo "Failed to create destination folder." >&2; exit 1; }
 
           # Perform the rsync operation
           echo "Starting rsync..."
