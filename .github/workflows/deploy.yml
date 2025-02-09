@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: self-hosted
+    runs-on: self-hosted # Use the label of your self-hosted runner
 
     steps:
       - name: Checkout repository
@@ -19,25 +19,41 @@ jobs:
           node-version: "18"
 
       - name: Install Yarn
-        run: npm install -g yarn
+        run: |
+          echo "Installing Yarn..."
+          npm install -g yarn
 
       - name: Install dependencies
-        run: yarn install
+        run: |
+          echo "Installing dependencies..."
+          yarn install
 
       - name: Build project
-        run: yarn build
+        run: |
+          echo "Building project..."
+          yarn build
 
       - name: Deploy to Server
         env:
           BRANCH_NAME: ${{ github.ref_name }}
-          DEST_FOLDER: "/test/simple-calculator.vkvaskov.com/${{ github.ref_name }}"
+          DEST_FOLDER: "/www/simple-calculator.vkvaskov.com/${{ github.ref_name }}"
         run: |
           echo "Deploying to server..."
-
+          ls
+          cd /www/simple-calculator.vkvaskov.com || { echo "Failed to change directory." >&2; exit 1; }
+          ls
           # Create the destination folder if it doesn't exist
           mkdir -p $DEST_FOLDER || { echo "Failed to create destination folder." >&2; exit 1; }
 
           # Move the built files to the destination folder
-          cp -r ./dist/* $DEST_FOLDER/ || { echo "Failed to copy files." >&2; exit 1; }
+          cp -r $GITHUB_WORKSPACE/dist/* $DEST_FOLDER/ || { echo "Failed to copy files." >&2; exit 1; }
 
           echo "Deployment completed successfully."
+
+          # List the contents of the destination folder
+          echo "Listing contents of the destination folder..."
+          ls -l $DEST_FOLDER
+
+          # Display disk usage of the destination folder
+          echo "Displaying disk usage of the destination folder..."
+          du -sh $DEST_FOLDER
