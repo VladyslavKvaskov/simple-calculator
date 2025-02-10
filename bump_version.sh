@@ -11,13 +11,13 @@ BRANCH_NAME="$2"
 IFS='.' read -r MAJOR MINOR REST <<< "$CURRENT_VERSION"
 IFS='-' read -r PATCH REST <<< "$REST"
 
-if [ "$BRANCH_NAME" != "main" ]; then
+if [ "$BRANCH_NAME" == "main" ]; then
   echo "On main branch. Determining version bump..."
   echo $COMMIT_MESSAGE
 
   echo "Current Version: $CURRENT_VERSION"
   echo "Major: $MAJOR, Minor: $MINOR, Patch: $PATCH"
-  
+
   # Determine the version bump based on the commit message
   if [[ "$COMMIT_MESSAGE" == *"[major]"* ]]; then
     echo "Major bump detected"
