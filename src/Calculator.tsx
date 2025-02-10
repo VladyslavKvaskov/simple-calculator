@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button, Container, Box, type ButtonOwnProps } from "@mui/material";
 import { evaluate } from "mathjs";
 
@@ -7,7 +7,7 @@ const MATH_OPERATORS_TRANSFORMED: { [key: string]: string } = {
   "/": "÷",
 };
 
-const EMPTY_ITEM = { label: "", color: undefined };
+const EMPTY_ITEM = { value: "", color: undefined };
 
 const RoundButtonStyles = {
   width: "64px",
@@ -19,6 +19,7 @@ const RoundButtonStyles = {
 
 const Calculator: React.FC = () => {
   const [input, setInput] = useState<string>("");
+  const outputRef = useRef<HTMLDivElement>(null);
 
   const handleButtonClick = (value: string) => {
     if (value === "=") {
@@ -36,7 +37,6 @@ const Calculator: React.FC = () => {
 
   const handleClear = () => {
     setInput("");
-    // setResult("");
   };
 
   const handleEvaluate = () => {
@@ -51,9 +51,16 @@ const Calculator: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    outputRef.current?.scrollTo({
+      left: outputRef.current?.scrollWidth,
+    });
+  }, [input]);
+
   return (
     <Container sx={{ width: "328px", boxSizing: "border-box" }}>
       <Box
+        ref={outputRef}
         sx={{
           fontSize: "1.5rem",
           height: "29px",
@@ -80,38 +87,39 @@ const Calculator: React.FC = () => {
       </Box>
       <Box sx={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
         {[
-          { label: "AC", color: "info" },
+          { value: "AC", color: "info" },
           EMPTY_ITEM,
           EMPTY_ITEM,
-          { label: "/", color: "primary" },
-          { label: "7", color: "secondary" },
-          { label: "8", color: "secondary" },
-          { label: "9", color: "secondary" },
-          { label: "*", color: "primary" },
-          { label: "4", color: "secondary" },
-          { label: "5", color: "secondary" },
-          { label: "6", color: "secondary" },
-          { label: "-", color: "primary" },
-          { label: "1", color: "secondary" },
-          { label: "2", color: "secondary" },
-          { label: "3", color: "secondary" },
-          { label: "+", color: "primary" },
+          { value: "/", color: "primary" },
+          { value: "7", color: "secondary" },
+          { value: "8", color: "secondary" },
+          { value: "9", color: "secondary" },
+          { value: "*", color: "primary" },
+          { value: "4", color: "secondary" },
+          { value: "5", color: "secondary" },
+          { value: "6", color: "secondary" },
+          { value: "-", color: "primary" },
+          { value: "1", color: "secondary" },
+          { value: "2", color: "secondary" },
+          { value: "3", color: "secondary" },
+          { value: "+", color: "primary" },
           EMPTY_ITEM,
-          { label: "0", color: "secondary" },
-          { label: ".", color: "secondary" },
-          { label: "=", color: "primary" },
-        ].map((item) => {
-          if (item.label === "") {
-            return <div style={{ width: "64px" }}></div>;
+          { value: "0", color: "secondary" },
+          { value: ".", color: "secondary" },
+          { value: "=", color: "primary" },
+        ].map((item, index) => {
+          if (item.value === "") {
+            return <div key={index} style={{ width: "64px" }}></div>;
           }
           return (
             <Button
+              key={index}
               variant="contained"
               color={(item.color as ButtonOwnProps["color"]) || "info"}
               sx={RoundButtonStyles}
-              onClick={() => handleButtonClick(item.label)}
+              onClick={() => handleButtonClick(item.value)}
             >
-              {MATH_OPERATORS_TRANSFORMED[item.label] || item.label}
+              {MATH_OPERATORS_TRANSFORMED[item.value] || item.value}
             </Button>
           );
         })}
