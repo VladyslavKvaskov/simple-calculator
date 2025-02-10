@@ -8,11 +8,11 @@ CURRENT_VERSION=$(node -p "require('./package.json').version")
 COMMIT_MESSAGE="$1"
 BRANCH_NAME="$2"
 
+IFS='.' read -r MAJOR MINOR REST <<< "$CURRENT_VERSION"
+IFS='-' read -r PATCH REST <<< "$REST"
+
 if [ "$BRANCH_NAME" == "main" ]; then
   echo "On main branch. Determining version bump..."
-
-  # Extract the major, minor, and patch numbers
-  IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
 
   # Determine the version bump based on the commit message
   if [[ "$COMMIT_MESSAGE" == *"[major]"* ]]; then
@@ -57,8 +57,6 @@ if [ "$BRANCH_NAME" == "main" ]; then
 
 else
   echo "On branch '$BRANCH_NAME'. Setting version to include branch name."
-
-  IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
 
   # Sanitize branch name by replacing slashes with dashes
   SAFE_BRANCH_NAME=$(echo "$BRANCH_NAME" | tr '/' '-')
