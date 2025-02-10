@@ -20,15 +20,15 @@ if [ "$BRANCH_NAME" != "main" ]; then
   # Determine the version bump based on the commit message
   if [[ "$COMMIT_MESSAGE" == *"[major]"* ]]; then
     echo "Major bump detected"
-    ((MAJOR++))
+    MAJOR=$((MAJOR + 1))
     MINOR=0
     PATCH=0
     echo "Major1: $MAJOR, Minor1: $MINOR, Patch1: $PATCH"
   elif [[ "$COMMIT_MESSAGE" == *"[minor]"* ]]; then
-    ((MINOR++))
+    MINOR=$((MINOR + 1))
     PATCH=0
   elif [[ "$COMMIT_MESSAGE" == *"[patch]"* ]]; then
-    ((PATCH++))
+    PATCH=$((PATCH + 1))
   else
     echo "No version bump keyword found in commit message. Exiting."
     exit 0
