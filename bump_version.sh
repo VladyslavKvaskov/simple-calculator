@@ -36,25 +36,6 @@ if [ "$BRANCH_NAME" == "main" ]; then
   NEW_VERSION="$MAJOR.$MINOR.$PATCH"
   echo "Bumping version to $NEW_VERSION ($BUMP_TYPE release)"
 
-  # Update the version in package.json using Node.js
-  node -e "
-    const fs = require('fs');
-    const packageJson = require('./package.json');
-    packageJson.version = '$NEW_VERSION';
-    fs.writeFileSync('./package.json', JSON.stringify(packageJson, null, 2));
-  "
-
-  # Output the new version for GitHub Actions
-  echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_OUTPUT
-
-  # Commit the version bump
-  git add package.json
-  git commit -m "Bump version to $NEW_VERSION"
-
-  # Create a new tag
-  git tag "v$NEW_VERSION"
-  git push origin main --tags
-
 else
   echo "On branch '$BRANCH_NAME'. Setting version to include branch name."
 
@@ -64,22 +45,32 @@ else
   # Construct the new version with branch name suffix
   NEW_VERSION="$MAJOR.$MINOR.$PATCH-$SAFE_BRANCH_NAME"
   echo "Setting version to $NEW_VERSION"
+fi
 
-  # Update the version in package.json using Node.js
-  node -e "
-    const fs = require('fs');
-    const packageJson = require('./package.json');
-    packageJson.version = '$NEW_VERSION';
-    fs.writeFileSync('./package.json', JSON.stringify(packageJson, null, 2));
-  "
+# Update the version in package.json using Node.js
+node -e "
+  const fs = require('fs');
+  const packageJson = require('./package.json');
+  packageJson.version = '$NEW_VERSION';
+  fs.writeFileSync('./package.json', JSON.stringify(packageJson, null, 2));
+"
 
-  # Output the new version for GitHub Actions
-  echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_OUTPUT
+# Output the new version for GitHub Actions
+echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_OUTPUT
 
+# Check if package.json was modified
+if git diff --quiet package.json; then
+  echo "No changes to commit. Continuing..."
+else
   # Commit the version update
   git add package.json
   git commit -m "Set version to $NEW_VERSION"
+fi
 
-  # Push changes to the current branch
+# Push changes and create a new tag if on the main branch
+if [ "$BRANCH_NAME" == "main" ]; then
+  git tag "v$NEW_VERSION"
+  git push origin main --tags
+else
   git push origin "$BRANCH_NAME"
 fi
