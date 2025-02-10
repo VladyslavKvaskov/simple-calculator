@@ -17,18 +17,21 @@ if [ "$BRANCH_NAME" != "main" ]; then
 
   echo "Current Version: $CURRENT_VERSION"
   echo "Major: $MAJOR, Minor: $MINOR, Patch: $PATCH"
+  
   # Determine the version bump based on the commit message
   if [[ "$COMMIT_MESSAGE" == *"[major]"* ]]; then
     echo "Major bump detected"
     MAJOR=$((MAJOR + 1))
     MINOR=0
     PATCH=0
-    echo "Major1: $MAJOR, Minor1: $MINOR, Patch1: $PATCH"
+    BUMP_TYPE="major"
   elif [[ "$COMMIT_MESSAGE" == *"[minor]"* ]]; then
     MINOR=$((MINOR + 1))
     PATCH=0
+    BUMP_TYPE="minor"
   elif [[ "$COMMIT_MESSAGE" == *"[patch]"* ]]; then
     PATCH=$((PATCH + 1))
+    BUMP_TYPE="patch"
   else
     echo "No version bump keyword found in commit message. Exiting."
     exit 0
@@ -36,7 +39,7 @@ if [ "$BRANCH_NAME" != "main" ]; then
 
   # Construct the new version
   NEW_VERSION="$MAJOR.$MINOR.$PATCH"
-  echo "Bumping version to $NEW_VERSION"
+  echo "Bumping version to $NEW_VERSION ($BUMP_TYPE release)"
 
 else
   echo "On branch '$BRANCH_NAME'. Setting version to include branch name."
