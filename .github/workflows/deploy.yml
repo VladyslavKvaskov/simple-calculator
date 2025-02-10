@@ -61,7 +61,7 @@ jobs:
 
       - name: Deploy to Server
         env:
-          BASE_DIR: "/var/www/ch05522979/www/simple-calculator.vkvaskov.com"
+          BASE_DIR: ${{ secrets.BASE_DIR }}
           NEW_VERSION: ${{ steps.version_bump.outputs.NEW_VERSION }}
         run: |
           # Change directory to BASE_DIR

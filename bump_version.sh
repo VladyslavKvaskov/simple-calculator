@@ -58,11 +58,13 @@ if [ "$BRANCH_NAME" == "main" ]; then
 else
   echo "On branch '$BRANCH_NAME'. Setting version to include branch name."
 
+  IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+
   # Sanitize branch name by replacing slashes with dashes
   SAFE_BRANCH_NAME=$(echo "$BRANCH_NAME" | tr '/' '-')
 
   # Construct the new version with branch name suffix
-  NEW_VERSION="$CURRENT_VERSION-$SAFE_BRANCH_NAME"
+  NEW_VERSION="$MAJOR.$MINOR.$PATCH-$SAFE_BRANCH_NAME"
   echo "Setting version to $NEW_VERSION"
 
   # Update the version in package.json using Node.js
