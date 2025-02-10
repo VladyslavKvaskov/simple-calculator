@@ -13,19 +13,24 @@ IFS='-' read -r PATCH REST <<< "$REST"
 
 if [ "$BRANCH_NAME" == "main" ]; then
   echo "On main branch. Determining version bump..."
+  echo $COMMIT_MESSAGE
+
+  echo "Current Version: $CURRENT_VERSION"
+  echo "Major: $MAJOR, Minor: $MINOR, Patch: $PATCH"
 
   # Determine the version bump based on the commit message
   if [[ "$COMMIT_MESSAGE" == *"[major]"* ]]; then
-    ((MAJOR++))
+    echo "Major bump detected"
+    MAJOR=$((MAJOR + 1))
     MINOR=0
     PATCH=0
     BUMP_TYPE="major"
   elif [[ "$COMMIT_MESSAGE" == *"[minor]"* ]]; then
-    ((MINOR++))
+    MINOR=$((MINOR + 1))
     PATCH=0
     BUMP_TYPE="minor"
   elif [[ "$COMMIT_MESSAGE" == *"[patch]"* ]]; then
-    ((PATCH++))
+    PATCH=$((PATCH + 1))
     BUMP_TYPE="patch"
   else
     echo "No version bump keyword found in commit message. Exiting."
