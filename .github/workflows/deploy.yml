@@ -56,7 +56,7 @@ jobs:
 
       - name: Build project
         env:
-          BASE_URL: "/${{ github.ref_name }}"
+          BASE_URL: "/${{ steps.version_bump.outputs.NEW_VERSION }}"
         run: yarn build
 
       - name: Deploy to Server
