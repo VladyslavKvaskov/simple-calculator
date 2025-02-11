@@ -75,7 +75,7 @@ const Calculator: React.FC = () => {
           ref={outputRef}
           sx={{
             fontSize: "1.5rem",
-            height: "52px",
+            height: "54px",
             marginBottom: 2,
             padding: 1,
             whiteSpace: "nowrap",
