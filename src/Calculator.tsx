@@ -81,6 +81,7 @@ const Calculator: React.FC = () => {
             whiteSpace: "nowrap",
             overflow: "auto",
             textAlign: "right",
+            width: "280px",
             border: (theme) =>
               `1px solid ${
                 theme.palette.mode === "light"
